@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="InstaHD - Save your own or authorized Instagram media.">
+  <title>InstaHD — Media Downloader</title>
+  <style>
+    :root { --bg:#0b1020; --panel:#151d32; --muted:#9aa7c2; --text:#f6f7fb; --a:#a855f7; --b:#ec4899; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; color:var(--text); font-family:Arial, sans-serif;
+      background:radial-gradient(circle at 15% 5%,#39205e 0,transparent 35%),linear-gradient(145deg,#090d19,#111a30); }
+    .wrap { width:min(940px,92%); margin:auto; padding:28px 0 50px; }
+    header { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:58px; }
+    .logo { font-size:28px; font-weight:900; letter-spacing:-1px; background:linear-gradient(90deg,#c084fc,#f472b6); color:transparent; background-clip:text; }
+    .tag { color:#d8c6f7; border:1px solid #62428a; padding:8px 12px; border-radius:30px; font-size:12px; }
+    .hero { text-align:center; margin-bottom:28px; }
+    h1 { font-size:clamp(34px,7vw,58px); margin:0 0 12px; letter-spacing:-2px; }
+    h1 span { background:linear-gradient(90deg,#c084fc,#f472b6); color:transparent; background-clip:text; }
+    .sub { color:var(--muted); line-height:1.6; max-width:620px; margin:0 auto; }
+    .panel { background:rgba(21,29,50,.94); border:1px solid #2b3652; border-radius:22px; padding:24px; box-shadow:0 22px 65px #0005; }
+    .tabs { display:flex; gap:10px; margin-bottom:18px; }
+    .tab { flex:1; padding:13px; border:1px solid #39445e; border-radius:12px; background:#10182b; color:#d8deec; cursor:pointer; font-weight:700; }
+    .tab.active { background:linear-gradient(90deg,#7c3aed,#db2777); border-color:transparent; color:white; }
+    label { display:block; margin:14px 0 8px; color:#dce3f2; font-size:14px; font-weight:700; }
+    input { width:100%; padding:16px; border-radius:12px; border:1px solid #3b4968; background:#0c1426; color:white; font-size:15px; outline:none; }
+    input:focus { border-color:#c084fc; }
+    .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+    button, .download { border:0; border-radius:12px; padding:14px 18px; font-size:15px; font-weight:700; cursor:pointer; text-decoration:none; text-align:center; }
+    .primary { flex:1; color:white; background:linear-gradient(90deg,#7c3aed,#db2777); }
+    .secondary { color:#e8ddfa; background:#29344f; }
+    .hint, .status { color:var(--muted); font-size:13px; line-height:1.55; }
+    .status { min-height:22px; margin-top:14px; }
+    .preview { display:none; margin-top:18px; padding:14px; border-radius:14px; background:#0c1426; border:1px solid #303d5b; }
+    video { width:100%; max-height:420px; border-radius:10px; background:#000; }
+    .download { display:inline-block; margin-top:12px; color:white; background:#15803d; }
+    .features { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:22px; }
+    .feature { background:#121b30; border:1px solid #293652; padding:16px; border-radius:15px; }
+    .feature strong { display:block; margin:7px 0; }
+    .feature small { color:var(--muted); line-height:1.5; }
+    footer { text-align:center; margin-top:30px; color:#8491aa; font-size:12px; line-height:1.6; }
+    @media(max-width:600px) { header { margin-bottom:40px; } .panel { padding:16px; } .features { grid-template-columns:1fr; } .actions { flex-direction:column; } }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <div class="logo">InstaHD</div>
+      <div class="tag">REELS • STORIES • MEDIA</div>
+    </header>
+
+    <section class="hero">
+      <h1>Save Media with <span>InstaHD</span></h1>
+      <p class="sub">अपनी या अनुमति प्राप्त वीडियो को आसानी से Preview करें और सेव करें। Original quality उपलब्ध मीडिया पर निर्भर करती है।</p>
+    </section>
+
+    <section class="panel">
+      <div class="tabs" role="tablist" aria-label="Media type">
+        <button class="tab active" id="reelTab" type="button" aria-selected="true">▶ Reel</button>
+        <button class="tab" id="storyTab" type="button" aria-selected="false">◉ Story</button>
+      </div>
+
+      <label for="mediaUrl">Direct video file link डालें</label>
+      <input id="mediaUrl" type="url" placeholder="https://example.com/my-video.mp4" autocomplete="url">
+      <div class="hint">यह शुरुआती डेमो direct video file URL (जैसे .mp4) के लिए है। सामान्य Instagram post/story URL अपने-आप डाउनलोड नहीं होगा।</div>
+
+      <div class="actions">
+        <button class="primary" id="previewBtn" type="button">Preview करें</button>
+        <button class="secondary" id="clearBtn" type="button">Clear</button>
+      </div>
+      <div class="status" id="status" role="status" aria-live="polite"></div>
+
+      <div class="preview" id="previewBox">
+        <video id="videoPreview" controls playsinline></video>
+        <div><a class="download" id="downloadBtn" href="#" download="instahd-video.mp4">⬇ Download Video</a></div>
+      </div>
+    </section>
+
+    <section class="features">
+      <div class="feature"><div>🎬</div><strong>Reel & Story</strong><small>अलग-अलग मीडिया प्रकार चुनें।</small></div>
+      <div class="feature"><div>✨</div><strong>Original Quality</strong><small>वीडियो की उपलब्ध मूल क्वालिटी ही सेव होगी।</small></div>
+      <div class="feature"><div>📱</div><strong>Mobile Friendly</strong><small>मोबाइल और कंप्यूटर दोनों के लिए डिजाइन।</small></div>
+    </section>
+
+    <footer>
+      InstaHD एक स्वतंत्र डेमो प्रोजेक्ट है, Instagram से संबद्ध नहीं है।<br>
+      केवल अपनी या डाउनलोड करने की अनुमति वाली सामग्री सेव करें।
+    </footer>
+  </main>
+
+  <script>
+    const reelTab = document.getElementById('reelTab');
+    const storyTab = document.getElementById('storyTab');
+    const urlInput = document.getElementById('mediaUrl');
+    const statusBox = document.getElementById('status');
+    const previewBox = document.getElementById('previewBox');
+    const video = document.getElementById('videoPreview');
+    const downloadBtn = document.getElementById('downloadBtn');
+    let selectedType = 'Reel';
+
+    function chooseTab(type) {
+      selectedType = type;
+      reelTab.classList.toggle('active', type === 'Reel');
+      storyTab.classList.toggle('active', type === 'Story');
+      reelTab.setAttribute('aria-selected', String(type === 'Reel'));
+      storyTab.setAttribute('aria-selected', String(type === 'Story'));
+      statusBox.textContent = type + ' mode चुना गया।';
+    }
+    reelTab.addEventListener('click', () => chooseTab('Reel'));
+    storyTab.addEventListener('click', () => chooseTab('Story'));
+
+    document.getElementById('previewBtn').addEventListener('click', () => {
+      const raw = urlInput.value.trim();
+      previewBox.style.display = 'none';
+      video.pause();
+      video.removeAttribute('src');
+      video.load();
+
+      if (!raw) {
+        statusBox.textContent = 'पहले direct video file link डालें।';
+        return;
+      }
+      let parsed;
+      try { parsed = new URL(raw); } catch {
+        statusBox.textContent = 'कृपया सही URL डालें।';
+        return;
+      }
+      if (!['https:', 'http:'].includes(parsed.protocol)) {
+        statusBox.textContent = 'केवल http या https लिंक स्वीकार हैं।';
+        return;
+      }
+      video.src = parsed.href;
+      downloadBtn.href = parsed.href;
+      statusBox.textContent = 'वीडियो लोड करने की कोशिश हो रही है। अगर सर्वर अनुमति नहीं देता, तो Preview नहीं चलेगा।';
+      video.onloadedmetadata = () => {
+        previewBox.style.display = 'block';
+        statusBox.textContent = selectedType + ' का Preview तैयार है।';
+      };
+      video.onerror = () => {
+        previewBox.style.display = 'none';
+        statusBox.textContent = 'यह लिंक वीडियो के रूप में नहीं खुला। Direct MP4 लिंक और सर्वर की अनुमति जाँचें।';
+      };
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      urlInput.value = '';
+      video.pause();
+      video.removeAttribute('src');
+      video.load();
+      previewBox.style.display = 'none';
+      statusBox.textContent = 'लिंक साफ कर दिया गया।';
+    });
+  </script>
+</body>
+</html>
